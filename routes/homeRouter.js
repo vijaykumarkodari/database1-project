@@ -35,11 +35,12 @@ router.post('/upload', function(req, res) {
     var sql = null;
     //var array = new Function(`return [${Array.prototype.slice.call(sampleFile.data, 0)}]`);
     var array = sampleFile.data.toString().split('\n');
+    var table = sampleFile.name.toString().split('.');
     // console.log(array.length);
     if (req.body.insertionType === "bulk") {
 
         const start = Date.now();
-        sql = "insert into players values";
+        sql = "insert into " + table[0] + " values";
 
         array.forEach(element => {
             sql = sql + "(" + element + "),";
@@ -59,7 +60,7 @@ router.post('/upload', function(req, res) {
     } else {
         const start = Date.now();
         array.forEach(element => {
-            sql = "insert into players values  ( " + element + ")";
+            sql = "insert into " + table[0] + " values  ( " + element + ")";
             // console.log(sql);
 
             db.query(sql, function(err, result) {
@@ -81,9 +82,33 @@ router.post('/upload', function(req, res) {
 router.post('/loadfile', function(req, res) {
     // console.log(req);
     const start = Date.now();
-    var sql = "LOAD DATA LOCAL INFILE " + "\"" + req.body.filepath +
-        "\"" + " INTO TABLE players FIELDS TERMINATED BY ','" + " LINES TERMINATED BY \'" +
-        "\\r\\n" + "\' IGNORE 0 LINES (PlayerID ,FirstName,LastName ,TeamID,Position,Touchdowns,TotalYards,Salary);";
+    const a = req.body.filepath.toString().split("/");
+    const b = a[a.length - 1].toString().split(".");
+    const val = b[0];
+    console.log(val);
+    var sql = null;
+    if (val === "players") {
+        sql = "LOAD DATA LOCAL INFILE " + "\"" + req.body.filepath +
+            "\"" + " INTO TABLE players FIELDS TERMINATED BY ','" + " LINES TERMINATED BY \'" +
+            "\\r\\n" + "\' IGNORE 0 LINES (PlayerID ,FirstName,LastName ,TeamID,Position,Touchdowns,TotalYards,Salary);";
+
+    } else if (val === "teams") {
+        sql = "LOAD DATA LOCAL INFILE " + "\"" + req.body.filepath +
+            "\"" + " INTO TABLE teams FIELDS TERMINATED BY ','" + " LINES TERMINATED BY \'" +
+            "\\r\\n" + "\' IGNORE 0 LINES (TeamID, TeamName, City);";
+
+    } else if (val === "games") {
+        sql = "LOAD DATA LOCAL INFILE " + "\"" + req.body.filepath +
+            "\"" + " INTO TABLE games FIELDS TERMINATED BY ','" + " LINES TERMINATED BY \'" +
+            "\\r\\n" + "\' IGNORE 0 LINES (GameID, Date, Stadium, Result, Attendance, TicketRevenue);";
+    } else if (val === "play") {
+        sql = "LOAD DATA LOCAL INFILE " + "\"" + req.body.filepath +
+            "\"" + " INTO TABLE play FIELDS TERMINATED BY ','" + " LINES TERMINATED BY \'" +
+            "\\r\\n" + "\' IGNORE 0 LINES (PlayerID, GameID);";
+
+    } else {
+        res.send("Invalid entry: make sure file name matches with table name");
+    }
     // console.log(sql);
     db.query(sql, function(err, result, fields) {
         if (err) throw err;

@@ -17,7 +17,13 @@
                     // Define what happens on successful data submission
                     XHR.addEventListener("load", function(event) {
                         const data = JSON.parse(event.target.responseText);
-                        $("#textarea").val(data.result);
+                        const result = JSON.parse(data.result);
+                        result.forEach(row => {
+                            Object.keys(row).forEach(function(key) {
+                                console.log(key, row[key]);
+                                $("#textarea").val("Maximum value is :\t" + row[key]);
+                            });
+                        });
                         alert(data.message);
                     });
 
@@ -88,7 +94,7 @@
 
                         <h3><b>Result</b></h3>
                         <div class="form-group addPadding">
-                            <textarea class="form-control textarea" placeholder="Max data will be displayed here.." id="textarea"></textarea>
+                            <textarea class="form-control textarea" placeholder="Max data will be displayed here.." id="textarea" readonly></textarea>
                         </div>
                         <div class="form-group  addPadding">
                         </div>

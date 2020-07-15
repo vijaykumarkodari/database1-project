@@ -17,12 +17,39 @@
                     // Define what happens on successful data submission
                     XHR.addEventListener("load", function(event) {
                         const data = JSON.parse(event.target.responseText);
-                        $("#textarea").val(data.result);
+                        //  $("#textarea").val(data.result);
                         alert(data.message);
+                        const result = JSON.parse(data.result);
+
+                        //console.log(row);
+                        debugger;
+                        var t = "<table id=\"viewData\" class=\"table table-bordered\" style=\"overflow: scroll;\"><thead><tr>";
+                        Object.keys(result[0]).forEach(function(key) {
+                            //console.log(key, row[key]);
+                            //$("#textarea").val($("#textarea").val() + "\t" + key);
+                            t = t + "<th>" + key + "</th>";
+                        });
+                        // $("#textarea").val($("#textarea").val() + " ==== ::\n");
+                        t = t + "</tr></thead><tbody>";
+                        result.forEach(row => {
+                            //console.log(row);
+                            t = t + "<tr>"
+                            Object.keys(row).forEach(function(key) {
+                                //console.log(key, row[key]);
+                                //$("#textarea").val($("#textarea").val() + "\t" + row[key]);
+                                t = t + "<td>" + row[key] + "</td>";
+                            });
+                            //$("#textarea").val($("#textarea").val() + " \n");
+                            t = t + "</tr>"
+                        });
                         /* Object.keys(data.result).forEach(function(key) {
                             console.log(key, data.result[key]);
                             $("#textarea").val($("#textarea").val() + data.result[key]);
                         }); */
+                        t = t + "</tbody></table>";
+                        $("#viewData").remove();
+                        $("#result").append(t);
+                        $(".loadRight").css("overflow", "scroll");
                     });
 
                     // Define what happens in case of error
@@ -90,8 +117,8 @@
                     <form id='displayForm'>
 
                         <h3><b>Result</b></h3>
-                        <div class="form-group addPadding">
-                            <textarea class="form-control textarea" placeholder="Table data will be displayed here.." id="textarea"></textarea>
+                        <div class="form-group addPadding" id="result">
+                            <!-- <textarea class="form-control textarea" placeholder="Table data will be displayed here.." id="textarea"></textarea> -->
                         </div>
                         <div class="form-group  addPadding">
                         </div>
