@@ -1,10 +1,10 @@
 module.exports = {
     mysql: {
         connectionLimit: 10,
-        host: "localhost",
-        user: "root",
+        host: "mysql-db.ck2rt6d9nptt.us-east-1.rds.amazonaws.com",
+        user: "admin",
         password: "Ab@12345",
-        database: "sports"
+        database: "mysql-db"
     }
 
 }
