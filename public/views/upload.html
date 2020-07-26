@@ -31,7 +31,7 @@
                         });
 
                         // Set up our request
-                        XHR.open("POST", "https://db-crud-app.herokuapp.com/db/upload");
+                        XHR.open("POST", "http://localhost:3000/db/upload");
 
                         // The data sent is what the user provided in the form
                         XHR.send(FD);
@@ -70,7 +70,7 @@
                         });
 
                         // Set up our request
-                        XHR.open("POST", "https://db-crud-app.herokuapp.com/db/loadfile");
+                        XHR.open("POST", "http://localhost:3000/db/loadfile");
 
                         // The data sent is what the user provided in the form
                         XHR.send(FD);

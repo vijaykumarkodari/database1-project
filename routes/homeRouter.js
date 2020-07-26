@@ -32,46 +32,71 @@ router.post('/upload', function(req, res) {
     var message = null;
     // The name of the input field (i.e. "sampleFile") is used to retrieve the uploaded file
     let sampleFile = req.files.sampleFile;
-    var sql = null;
     //var array = new Function(`return [${Array.prototype.slice.call(sampleFile.data, 0)}]`);
     var array = sampleFile.data.toString().split('\n');
     var table = sampleFile.name.toString().split('.');
+    array.pop();
     // console.log(array.length);
+    var sql = "insert into " + table[0] + "(PlayerID, FirstName, LastName, TeamID, Position, Touchdowns, TotalYards, Salary) values ?";
     if (req.body.insertionType === "bulk") {
-
+        //  ndnnd
         const start = Date.now();
-        sql = "insert into " + table[0] + " values";
+
+        var records = [];
+        var i = -1;
 
         array.forEach(element => {
-            sql = sql + "(" + element + "),";
+            //console.log(element);
+            var str = element.toString().split(",");
 
+            records[++i] = str;
         });
-        sql = sql.slice(0, -1);
+        // sql = sql.slice(0, -1);
+        //  console.log(records[1]);
 
-        db.query(sql, function(err, result) {
+        db.query(sql, [records], function(err, result) {
             //  console.log(sql);
-            if (err) throw err;
+            if (err) {
+                var mesg = "error occured : " + err;
+                console.log(mesg);
+                res.send(mesg);
+            }
             console.log("Result: " + result);
             // alert("Bulk Data Inserted Successfully");
         });
         time = Date.now() - start;
         message = " ==Bulk Insertion time in milli sec: " + time;
+        console.log("Uploaded time : " + time + " ms");
 
     } else {
         const start = Date.now();
+        sql = "insert into " + table[0] + "(PlayerID, FirstName, LastName, TeamID, Position, Touchdowns, TotalYards, Salary) values (?)";
+        // var ss = 0;
         array.forEach(element => {
-            sql = "insert into " + table[0] + " values  ( " + element + ")";
-            // console.log(sql);
 
-            db.query(sql, function(err, result) {
-                if (err) throw err;
-                console.log("Result: " + result);
+
+            var str = element.toString().split(",");
+            //   console.log(++ss + " " + str.length);
+
+            //console.log(element);
+            db.query(sql, [str], function(err, result) {
+                if (err) {
+                    var mesg = "error occured : " + err;
+                    console.log(mesg);
+                    res.send(mesg);
+                }
+                // console.log("Result: " + result);
 
             });
-            time = Date.now() - start;
-            message = " ==Single Insertion time in milli sec: " + time;
+
+
+
+
         });
         // alert("Serial single insertion Data Inserted Successfully");
+        time = Date.now() - start;
+        message = " ==Single Insertion time in milli sec: " + time;
+        console.log("Uploaded time : " + time + " ms");
 
     }
     res.send("upload success" + message);
@@ -111,29 +136,39 @@ router.post('/loadfile', function(req, res) {
     }
     // console.log(sql);
     db.query(sql, function(err, result, fields) {
-        if (err) throw err;
+        if (err) {
+            var mesg = "error occured : " + err;
+            console.log(mesg);
+            res.send(mesg);
+        }
         /*  Object.keys(result).forEach(function(key) {
              console.log(key, result[key]);
          }); */
-        console.log("Result: " + result);
+        // console.log("Result: " + result);
 
     });
     var time = Date.now() - start;
+    console.log("Uploaded time : " + time + " ms");
     res.send("Data Uploaded===== file load time in milli seconds " + time);
 });
 
 router.post('/getdata', function(req, res) {
-    // console.log(req);
+    console.log(req.body);
     const start = Date.now();
-    var sql = "select * from " + req.body.tablename;
+    var sql = "select * from " + req.body.tablename + " limit 1000";
     // console.log(sql);
-    db.query(sql, function(err, result, fields) {
-        if (err) throw err;
+    db.query(sql, function(err, result) {
+        if (err) {
+            var mesg = "error occured : " + err;
+            console.log(mesg);
+            res.send(mesg);
+        }
         /*  Object.keys(result).forEach(function(key) {
              console.log(key, result[key]);
          }); */
-        console.log("Result: " + JSON.stringify(result));
+        // console.log("Result: " + result);
         var time = Date.now() - start;
+        console.log("fetch Time : " + time + " ms");
         var data = {
             "result": JSON.stringify(result),
             "message": "Data fetched successfully in time milli sec " + time
@@ -150,11 +185,15 @@ router.post('/cleardata', function(req, res) {
     var sql = "truncate " + req.body.tablename;
     // console.log(sql);
     db.query(sql, function(err, result, fields) {
-        if (err) throw err;
+        if (err) {
+            var mesg = "error occured : " + err;
+            console.log(mesg);
+            res.send(mesg);
+        }
         /*  Object.keys(result).forEach(function(key) {
              console.log(key, result[key]);
          }); */
-        //console.log("Result: " + JSON.stringify(result));
+        // console.log("Result: " + JSON.stringify(result));
         var time = Date.now() - start;
 
         res.send("Data cleared successfully in time milli sec " + time);
@@ -170,7 +209,12 @@ router.post('/getmax', function(req, res) {
     var sql = "select max(" + req.body.columnname + ") as maxSalary  from " + req.body.tablename;
     // console.log(sql);
     db.query(sql, function(err, result, fields) {
-        if (err) throw err;
+        if (err) {
+            var mesg = "error occured : " + err;
+            console.log(mesg);
+            res.send(mesg);
+        }
+
         /*  Object.keys(result).forEach(function(key) {
              console.log(key, result[key]);
          }); */
@@ -180,6 +224,7 @@ router.post('/getmax', function(req, res) {
             "result": JSON.stringify(result),
             "message": "Data fetched successfully in time milli sec " + time
         };
+        console.log("Fetch max value time : " + time + " ms");
         res.send(data);
 
     });

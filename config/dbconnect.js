@@ -7,7 +7,7 @@ let connection = mysql.createConnection({
     password: keys.mysql.password,
     database: keys.mysql.database
 });
-/* 
+
 connection.connect(function(err) {
     if (err) {
         return console.error('error: ' + err.message);
@@ -15,7 +15,7 @@ connection.connect(function(err) {
 
     console.log('Connected to the MySQL server.');
 });
-
+/*
 connection.end(function(err) {
     if (err) {
         return console.log('error:' + err.message);

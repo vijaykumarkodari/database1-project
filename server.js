@@ -20,11 +20,10 @@ router.use("/db", home);
 
 app.use("/", router);
 
-app.use("*", function(req, res) {
+/* app.use("*", function(req, res) {
     res.sendFile(__dirname + "/404.html");
-});
-
-app.listen(process.env.PORT || 5000,() => { console.log("listening to port 5000") });
-/*app.listen(3000, function() {
-    console.log("Live at Port 3000");
 }); */
+
+app.listen(3000, function() {
+    console.log("Live at Port 3000");
+});
