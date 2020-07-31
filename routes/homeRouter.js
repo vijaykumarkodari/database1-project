@@ -44,6 +44,7 @@ router.post('/upload', function(req, res) {
 
         var records = [];
         var i = -1;
+        console.log("Bulk insertion :");
 
         array.forEach(element => {
             //console.log(element);
@@ -72,24 +73,25 @@ router.post('/upload', function(req, res) {
         const start = Date.now();
         sql = "insert into " + table[0] + "(PlayerID, FirstName, LastName, TeamID, Position, Touchdowns, TotalYards, Salary) values (?)";
         // var ss = 0;
+        console.log(" Single insertion :" + array.length);
         array.forEach(element => {
 
 
             var str = element.toString().split(",");
+            const util = require('util'); // node native promisify
+            const query = util.promisify(db.query).bind(db);
             //   console.log(++ss + " " + str.length);
 
-            //console.log(element);
-            db.query(sql, [str], function(err, result) {
-                if (err) {
+            (async() => {
+                try {
+                    const rows = await query(sql, [str]);
+                    // console.log(rows);
+                } catch (err) {
                     var mesg = "error occured : " + err;
                     console.log(mesg);
                     res.send(mesg);
                 }
-                // console.log("Result: " + result);
-
-            });
-
-
+            })()
 
 
         });
@@ -111,6 +113,7 @@ router.post('/loadfile', function(req, res) {
     const b = a[a.length - 1].toString().split(".");
     const val = b[0];
     console.log(val);
+    console.log("Load file insertion :");
     var sql = null;
     if (val === "players") {
         sql = "LOAD DATA LOCAL INFILE " + "\"" + req.body.filepath +
@@ -183,6 +186,7 @@ router.post('/cleardata', function(req, res) {
     // console.log(req);
     const start = Date.now();
     var sql = "truncate " + req.body.tablename;
+
     // console.log(sql);
     db.query(sql, function(err, result, fields) {
         if (err) {
